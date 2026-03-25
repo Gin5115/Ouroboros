@@ -24,42 +24,28 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 
 ## Architecture
 
-```
-                        ┌──────────┐
-                        │ Attacker │
-                        └────┬─────┘
-                             │ SSH (port 2223)
-                             ▼
-┌─────────────────────────────────────────────────┐
-│  Ubuntu VM                                       │
-│                                                  │
-│  ┌─────────────────┐     ┌───────────────────┐  │
-│  │ SSH Honeypot    │◄───►│ Gemini Flash-Lite │  │
-│  │ (honeypot.py)   │     │ (adaptive resp.)  │  │
-│  └────────┬────────┘     └───────────────────┘  │
-│           │ writes                               │
-│  ┌────────▼────────┐                             │
-│  │ JSON Logs       │                             │
-│  └────────┬────────┘                             │
-│           │ reads                                │
-│  ┌────────▼────────┐                             │
-│  │ Flask API       │──── port 5000 ──────────►  │
-│  └─────────────────┘                             │
-└─────────────────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────┐
-│  Host Machine                                    │
-│  ┌─────────────────┐     ┌───────────────────┐  │
-│  │ React Dashboard │◄───►│ Gemini Flash      │  │
-│  │ (localhost:3000) │     │ (analysis/classify)│  │
-│  └─────────────────┘     └───────────────────┘  │
-└─────────────────────────────────────────────────┘
-```
+![Ouroboros Architecture](images/architecture.png)
 
 ## Screenshots
 
-*Add your dashboard screenshots here*
+<table align="center">
+  <tr>
+    <td><img src="images/web1.png" alt="Dashboard View 1" /></td>
+    <td><img src="images/web2.png" alt="Dashboard View 2" /></td>
+    <td><img src="images/web3.png" alt="Dashboard View 3" /></td>
+  </tr>
+  <tr>
+    <td><img src="images/web4.png" alt="Dashboard View 4" /></td>
+    <td><img src="images/web5.png" alt="Dashboard View 5" /></td>
+    <td><img src="images/web6.png" alt="Dashboard View 6" /></td>
+  </tr>
+  <tr>
+    <td><img src="images/web7.png" alt="Dashboard View 7" /></td>
+    <td><img src="images/web8.png" alt="Dashboard View 8" /></td>
+    <td><img src="images/web9.png" alt="Dashboard View 9" /></td>
+    <td><img src="images/web99.png" alt="Dashboard View 10" /></td>
+  </tr>
+</table>
 
 ## Quick Start
 
