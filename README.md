@@ -24,7 +24,7 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 
 ## Architecture
 
-![Ouroboros Architecture](images/architecture.png)
+![Ouroboros Architecture](images/architecture2.png)
 
 ## Screenshots
 
