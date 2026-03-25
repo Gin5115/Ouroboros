@@ -60,7 +60,7 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/Ouroboros.git
+git clone https://github.com/Gin5115/Ouroboros.git
 cd Ouroboros
 ```
 
