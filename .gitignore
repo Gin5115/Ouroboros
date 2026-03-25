@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+node_modules/
+build/
+.env
+honeypot_rsa_key
+logs/
+.vscode/
+.idea/
+.DS_Store
