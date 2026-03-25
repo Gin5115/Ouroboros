@@ -28,22 +28,25 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 
 ## Screenshots
 
+## Screenshots
+
+![Main Dashboard Overview](images/web1.png)
+
 <table align="center">
   <tr>
-    <td><img src="images/web1.png" alt="Dashboard View 1" /></td>
-    <td><img src="images/web2.png" alt="Dashboard View 2" /></td>
-    <td><img src="images/web3.png" alt="Dashboard View 3" /></td>
+    <td><img src="images/web2.png" alt="Map View" /></td>
+    <td><img src="images/web3.png" alt="Heatmap" /></td>
+    <td><img src="images/web4.png" alt="Sessions" /></td>
   </tr>
   <tr>
-    <td><img src="images/web4.png" alt="Dashboard View 4" /></td>
-    <td><img src="images/web5.png" alt="Dashboard View 5" /></td>
-    <td><img src="images/web6.png" alt="Dashboard View 6" /></td>
+    <td><img src="images/web5.png" alt="Kill Chain" /></td>
+    <td><img src="images/web6.png" alt="Terminal Replay" /></td>
+    <td><img src="images/web7.png" alt="Credentials" /></td>
   </tr>
   <tr>
-    <td><img src="images/web7.png" alt="Dashboard View 7" /></td>
-    <td><img src="images/web8.png" alt="Dashboard View 8" /></td>
-    <td><img src="images/web9.png" alt="Dashboard View 9" /></td>
-    <td><img src="images/web99.png" alt="Dashboard View 10" /></td>
+    <td><img src="images/web8.png" alt="Downloads" /></td>
+    <td><img src="images/web9.png" alt="AI Classification" /></td>
+    <td><img src="images/web99.png" alt="MITRE ATT&CK" /></td>
   </tr>
 </table>
 
