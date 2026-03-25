@@ -28,8 +28,6 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 
 ## Screenshots
 
-## Screenshots
-
 ![Main Dashboard Overview](images/web1.png)
 
 <table align="center">
