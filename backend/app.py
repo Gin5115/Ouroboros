@@ -183,17 +183,21 @@ def timeline():
 
 @app.route("/api/classify", methods=["POST"])
 def classify_sessions():
-    """Auto-classify all sessions using Gemini."""
+    """Auto-classify new sessions using Gemini. Caches previous results."""
     body = request.get_json()
     api_key = body.get("api_key", "")
     if not api_key:
         return jsonify({"error": "No API key provided"}), 400
+
+    already_classified = body.get("classified_ids", [])
 
     entries = read_logs()
     sessions = get_sessions(entries)
     results = []
 
     for s in sessions:
+        if s["id"] in already_classified:
+            continue
         cmd_list = ", ".join([c["input"] for c in s["commands"][:10]])
         cred_list = ", ".join([f"{c['username']}/{c['password']}" for c in s["credentials"]])
         dl_list = ", ".join([d["url"] for d in s["downloads"]]) or "None"

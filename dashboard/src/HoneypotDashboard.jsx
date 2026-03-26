@@ -188,6 +188,8 @@ export default function HoneypotDashboard() {
       ]);
       setOverview(await ovR.json()); setAttempts(await atR.json()); setCredentials(await crR.json());
       setSessions(await seR.json()); setDownloads(await dlR.json()); setTimeline(await tlR.json());
+      const [lfR, tiR] = await Promise.all([fetch(API_BASE+"/live_feed"), fetch(API_BASE+"/top_ips")]);
+      setLiveFeed(await lfR.json()); setTopIPs(await tiR.json());
       try {
         const [hmR, cfR, psR, kcR, sdR, geR] = await Promise.all([
           fetch(API_BASE+"/heatmap"), fetch(API_BASE+"/command_freq"), fetch(API_BASE+"/password_strength"),
@@ -195,8 +197,7 @@ export default function HoneypotDashboard() {
         ]);
         setHeatmapData(await hmR.json()); setCmdFreq(await cfR.json()); setPwdStrength(await psR.json());
         setKillChain(await kcR.json()); setSessionDurations(await sdR.json()); setGeoData(await geR.json());
-        const [lfR, tiR] = await Promise.all([fetch(API_BASE+"/live_feed"), fetch(API_BASE+"/top_ips")]);
-        setLiveFeed(await lfR.json()); setTopIPs(await tiR.json());
+        
       } catch(e) { console.log("Analytics:", e); }
       setError("");
     } catch (e) { setError("Cannot connect to API"); } finally { setLoading(false); }
@@ -225,7 +226,7 @@ export default function HoneypotDashboard() {
     if (!geminiKey) { setClassifyError("Set API key in AI Analysis tab first"); return; }
     setClassifyLoading(true); setClassifyError("");
     try {
-      const res = await fetch(API_BASE + "/classify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ api_key: geminiKey }) });
+      const res = await fetch(API_BASE + "/classify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ api_key: geminiKey, classified_ids: [] }) });
       if (!res.ok) throw new Error("Error " + res.status);
       setClassifications(await res.json());
     } catch (e) { setClassifyError(e.message); } finally { setClassifyLoading(false); }
