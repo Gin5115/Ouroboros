@@ -15,16 +15,16 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 
 ### Key Features
 
-- **Custom SSH Honeypot** — built from scratch with Python + Paramiko.
-- **Adaptive AI Responses** — Gemini 2.5 Flash-Lite generates realistic output for unknown commands in real-time
-- **Automated Classification** — every session is classified by attack type, skill level, and severity
-- **Real-time Dashboard** — React + D3.js with world map, heatmap, kill chain, session replay
-- **MITRE ATT&CK Mapping** — AI-powered mapping of attacker techniques to the ATT&CK framework
-- **Structured Logging** — all events logged as NDJSON for easy analysis
+- **Custom SSH Honeypot**: built from scratch with Python + Paramiko.
+- **Adaptive AI Responses**: Gemini 2.5 Flash-Lite generates realistic output for unknown commands in real-time
+- **Automated Classification**: every session is classified by attack type, skill level, and severity
+- **Real-time Dashboard**: React + D3.js with world map, heatmap, kill chain, session replay
+- **MITRE ATT&CK Mapping**: AI-powered mapping of attacker techniques to the ATT&CK framework
+- **Structured Logging**: all events logged as NDJSON for easy analysis
 
 ## Architecture
 
-![Ouroboros Architecture](images/architecture.png)
+![Ouroboros Architecture](images/architecture2.png)
 
 ## Screenshots
 
@@ -60,7 +60,7 @@ The system includes a real-time analytics dashboard with attack visualizations, 
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/yourusername/Ouroboros.git
+git clone https://github.com/Gin5115/Ouroboros.git
 cd Ouroboros
 ```
 
