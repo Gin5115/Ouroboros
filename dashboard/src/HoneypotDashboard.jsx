@@ -113,16 +113,24 @@ function MiniBar({ value, max, color = "#f97316" }) {
 function HourChart({ hourly }) {
   const vals = Object.values(hourly); const max = vals.length > 0 ? Math.max(...vals, 1) : 1;
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 80, padding: "8px 0" }}>
-      {Array.from({ length: 24 }, (_, i) => {
-        const key = String(i).padStart(2, "0"); const v = hourly[key] || 0; const h = max > 0 ? (v / max) * 65 : 0;
-        return (
-          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 3 }}>
-            <div style={{ width: "100%", maxWidth: 16, height: h, background: v > 0 ? "#f97316" : "rgba(255,255,255,0.03)", borderRadius: "2px 2px 0 0", transition: "height 0.4s", minHeight: v > 0 ? 2 : 1, opacity: v > 0 ? 0.4 + (v / max) * 0.6 : 1 }} />
-            {i % 3 === 0 && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontFamily: "var(--mono)" }}>{key}</span>}
+    <div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 100 }}>
+        {Array.from({ length: 24 }, (_, i) => {
+          const key = String(i).padStart(2, "0"); const v = hourly[key] || 0; const h = max > 0 ? (v / max) * 85 : 0;
+          return (
+            <div key={i} title={key + ":00 - " + v + " attacks"} style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", height: "100%" }}>
+              <div style={{ width: "65%", height: Math.max(h, 2), background: v > 0 ? "#f97316" : "rgba(255,255,255,0.03)", borderRadius: "2px 2px 0 0", opacity: v > 0 ? 0.4 + (v / max) * 0.6 : 1 }} />
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", gap: 1, marginTop: 6 }}>
+        {Array.from({ length: 24 }, (_, i) => (
+          <div key={i} style={{ flex: 1, textAlign: "center", fontSize: 9, color: "rgba(255,255,255,0.4)", fontFamily: "var(--mono)" }}>
+            {i % 4 === 0 ? String(i).padStart(2, "0") : ""}
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -169,6 +177,8 @@ export default function HoneypotDashboard() {
   const [killChain, setKillChain] = useState({});
   const [sessionDurations, setSessionDurations] = useState([]);
   const [geoData, setGeoData] = useState([]);
+  const [liveFeed, setLiveFeed] = useState([]);
+  const [topIPs, setTopIPs] = useState([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -185,6 +195,8 @@ export default function HoneypotDashboard() {
         ]);
         setHeatmapData(await hmR.json()); setCmdFreq(await cfR.json()); setPwdStrength(await psR.json());
         setKillChain(await kcR.json()); setSessionDurations(await sdR.json()); setGeoData(await geR.json());
+        const [lfR, tiR] = await Promise.all([fetch(API_BASE+"/live_feed"), fetch(API_BASE+"/top_ips")]);
+        setLiveFeed(await lfR.json()); setTopIPs(await tiR.json());
       } catch(e) { console.log("Analytics:", e); }
       setError("");
     } catch (e) { setError("Cannot connect to API"); } finally { setLoading(false); }
@@ -357,6 +369,75 @@ export default function HoneypotDashboard() {
                 })}
               </div>
             </div>
+            {/* Top IPs + Dangerous Sessions + Live Feed */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              {/* Top Attacker IPs */}
+              <div style={CS}>
+                <div style={LS}>{I.globe(12, "rgba(255,255,255,0.6)")} Top attacker IPs</div>
+                {topIPs.length === 0 ? (
+                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textAlign: "center", padding: 16 }}>No data yet</p>
+                ) : topIPs.slice(0, 6).map((ip, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    <span style={{ width: 18, fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "var(--mono)", textAlign: "right" }}>{i+1}</span>
+                    <code style={{ fontFamily: "var(--mono)", fontSize: 11, color: "#f97316", flex: 1 }}>{ip.ip}</code>
+                    <div style={{ display: "flex", gap: 10, fontSize: 10, fontFamily: "var(--mono)" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)" }} title="Login attempts">{ip.attempts} att</span>
+                      <span style={{ color: "rgba(255,255,255,0.5)" }} title="Sessions">{ip.sessions} ses</span>
+                      <span style={{ color: ip.downloads > 0 ? "#ef4444" : "rgba(255,255,255,0.35)" }} title="Downloads">{ip.downloads} dl</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Most Dangerous Sessions */}
+              <div style={CS}>
+                <div style={LS}>{I.alert(12, "rgba(255,255,255,0.6)")} Most dangerous sessions</div>
+                {classifications.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: 16 }}>
+                    <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 8 }}>Run Auto-Classify first</p>
+                    <button onClick={() => setActiveTab("classify")} style={{ fontSize: 11, color: "#f97316", background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.15)", borderRadius: 4, padding: "5px 12px", cursor: "pointer", fontFamily: "var(--display)" }}>Go to Auto-Classify</button>
+                  </div>
+                ) : [...classifications].sort((a,b) => {
+                  const order = {critical: 0, high: 1, medium: 2, low: 3};
+                  return (order[a.severity] || 4) - (order[b.severity] || 4);
+                }).slice(0, 5).map((c, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 2, fontFamily: "var(--mono)", fontWeight: 500,
+                      background: sevColor(c.severity) + "15", color: sevColor(c.severity), textTransform: "uppercase", minWidth: 52, textAlign: "center"
+                    }}>{c.severity}</span>
+                    <code style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#f97316" }}>{c.src_ip}</code>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontFamily: "var(--mono)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {(c.attack_type || "").replace(/_/g, " ")}
+                    </span>
+                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "var(--mono)" }}>{c.cmd_count}c</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Live Attack Feed */}
+              <div style={CS}>
+                <div style={{ ...LS, justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>{I.activity(12, "rgba(255,255,255,0.6)")} Live feed</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}><div style={{ width: 5, height: 5, borderRadius: "50%", background: "#22c55e", animation: "pulse 2s ease infinite" }} /><span style={{ fontSize: 10, color: "#22c55e" }}>LIVE</span></div>
+                </div>
+                <div style={{ maxHeight: 180, overflow: "auto", fontSize: 11, fontFamily: "var(--mono)" }}>
+                  {liveFeed.length === 0 ? (
+                    <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textAlign: "center", padding: 16 }}>Waiting for events...</p>
+                  ) : liveFeed.slice(0, 15).map((e, i) => {
+                    const typeColor = e.type.includes("success") ? "#22c55e" : e.type.includes("failed") ? "#ef4444" : e.type.includes("command") ? "#f97316" : e.type.includes("download") ? "#a855f7" : e.type.includes("connect") ? "#3b82f6" : e.type.includes("gemini") ? "#eab308" : "rgba(255,255,255,0.4)";
+                    const typeLabel = e.type.includes("success") ? "LOGIN" : e.type.includes("failed") ? "FAIL" : e.type.includes("command") ? "CMD" : e.type.includes("download") ? "DL" : e.type.includes("connect") ? "CONN" : e.type.includes("closed") ? "END" : e.type.includes("gemini") ? "AI" : "EVT";
+                    return (
+                      <div key={i} style={{ display: "flex", gap: 6, padding: "3px 0", borderBottom: "1px solid rgba(255,255,255,0.03)", alignItems: "center" }}>
+                        <span style={{ color: "rgba(255,255,255,0.35)", minWidth: 48 }}>{e.time}</span>
+                        <span style={{ fontSize: 9, padding: "1px 4px", borderRadius: 2, background: typeColor + "15", color: typeColor, minWidth: 34, textAlign: "center", fontWeight: 500 }}>{typeLabel}</span>
+                        <span style={{ color: "rgba(255,255,255,0.55)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{e.detail}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
             {/* Top usernames row */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div style={CS}>

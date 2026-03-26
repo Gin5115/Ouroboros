@@ -400,5 +400,68 @@ def geo_attacks():
     return jsonify(locations)
 
 
+@app.route("/api/live_feed")
+def live_feed():
+    """Return the last 50 events for live feed."""
+    from datetime import datetime, timezone, timedelta
+    entries = read_logs()
+    events = []
+    for e in entries[-50:]:
+        eid = e.get("eventid", "")
+        utc_time = datetime.fromisoformat(e.get("timestamp", "").replace("Z", "+00:00"))
+        ist_time = utc_time + timedelta(hours=5, minutes=30)
+        event = {
+            "time": ist_time.strftime("%H:%M:%S"),
+            "type": eid,
+            "src_ip": e.get("src_ip", ""),
+            "detail": "",
+        }
+        if "login" in eid:
+            event["detail"] = e.get("username", "") + "/" + e.get("password", "")
+        elif "command" in eid:
+            event["detail"] = e.get("input", "")
+        elif "download" in eid:
+            event["detail"] = e.get("url", "")
+        elif "connect" in eid:
+            event["detail"] = "New connection"
+        elif "closed" in eid:
+            event["detail"] = "Session ended"
+        elif "gemini" in eid:
+            event["detail"] = "AI response: " + e.get("input", "")
+        else:
+            event["detail"] = e.get("message", "")[:60]
+        events.append(event)
+    events.reverse()
+    return jsonify(events)
+
+
+@app.route("/api/top_ips")
+def top_ips():
+    """Return top IPs with attack counts."""
+    entries = read_logs()
+    attempts = get_login_attempts(entries)
+    ip_counts = Counter(a["src_ip"] for a in attempts)
+    sessions_by_ip = {}
+    for s in get_sessions(entries):
+        ip = s["src_ip"]
+        if ip not in sessions_by_ip:
+            sessions_by_ip[ip] = {"sessions": 0, "commands": 0, "downloads": 0}
+        sessions_by_ip[ip]["sessions"] += 1
+        sessions_by_ip[ip]["commands"] += len(s["commands"])
+        sessions_by_ip[ip]["downloads"] += len(s["downloads"])
+    
+    result = []
+    for ip, count in ip_counts.most_common(10):
+        info = sessions_by_ip.get(ip, {"sessions": 0, "commands": 0, "downloads": 0})
+        result.append({
+            "ip": ip,
+            "attempts": count,
+            "sessions": info["sessions"],
+            "commands": info["commands"],
+            "downloads": info["downloads"],
+        })
+    return jsonify(result)
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
